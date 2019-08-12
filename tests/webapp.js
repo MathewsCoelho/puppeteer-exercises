@@ -87,4 +87,46 @@ describe('My first puppeteer test', () => {
             expect(numberOfLinks).to.equal(3)
         })
     })
+
+    describe('Feedback Test', () => {
+        it('should navigate to homepage', async () => {
+            await loadUrl(page, config.baseUrl)
+            await shouldExist(page, '#online_banking_features')
+        })
+
+        it('should click on feedback link', async () => {
+            await click(page, '#feedback')
+            await shouldExist(page, "form")
+        })
+
+        it('should submit feedback form', async () => {
+            await typeText(page, 'Kaniel', '#name')
+            await typeText(page, utils.generateEmail(), '#email')
+            await typeText(page, 'Just Subject', '#subject')
+            await typeText(page, 'Just a comment', '#comment')
+            await click(page, 'input[type="submit"]')
+        })
+
+        it('should display success message', async () => {
+            await shouldExist(page, "#feedback-title")
+            await waitForText(page, 'body', 'Thank you for your comments')
+        })
+    })
+
+    describe('Forgotted password', () => {
+        it('should navigate to homepage', async () => {
+            await loadUrl(page, config.baseUrl)
+            await shouldExist(page, '#online_banking_features')
+        })
+
+        it('should load forgotten password form', async () => {
+            await loadUrl(page, 'http://zero.webappsecurity.com/forgot-password.html')
+            await waitForText(page, "h3", "Forgotten Password")
+        })
+
+        it('should submit email', async () => {
+            await typeText(page, utils.generateEmail(), "#user_email")
+            await click(page, ".btn-primary")
+        })
+    })
 })
