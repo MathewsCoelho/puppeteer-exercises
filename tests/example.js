@@ -10,6 +10,11 @@ const pressKey = require('../lib/helpers').pressKey
 const shouldExist = require('../lib/helpers').shouldExist
 const shouldNotExist = require('../lib/helpers').shouldNotExist
 
+// const generateID = require('../lib/utils').generateID
+// const generateEmail = require('../lib/utils').generateEmail
+// const generatePhone = require('../lib/utils').generatePhone
+const utils = require("../lib/utils")
+
 describe('My first puppeteer test', () => {
     let browser
     let page
@@ -65,7 +70,8 @@ describe('My first puppeteer test', () => {
 
     it('submit searchbox', async () => {
         await loadUrl(page, config.baseUrl)
-        await typeText(page, 'Javascript', '#nav-search')
+        await typeText(page, utils.generatePhone(), '#nav-search')
+        await page.waitFor(3000)
         await pressKey(page, "Enter")
         await shouldExist(page, '#articles-list')
     })
