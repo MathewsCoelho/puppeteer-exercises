@@ -1,22 +1,31 @@
 const puppeteeer = require('puppeteer')
 const expect = require('chai').expect
 
+const config = require('../lib/config')
+const click = require('../lib/helpers').click
+const typeText = require('../lib/helpers').typeText
+const loadUrl = require('../lib/helpers').loadUrl
+const waitForText = require('../lib/helpers').waitForText
+const pressKey = require('../lib/helpers').pressKey
+const shouldExist = require('../lib/helpers').shouldExist
+const shouldNotExist = require('../lib/helpers').shouldNotExist
+
 describe('My first puppeteer test', () => {
     let browser
     let page
 
     before(async function() {
         browser = await puppeteeer.launch({
-            headless: false,
-            slowMo: 0,
-            devtools: false,
-            timeout: 10000,
+            headless: config.isHeadless,
+            slowMo: config.slowMo,
+            devtools: config.isDevTools,
+            timeout: config.launchTimeout,
         })
         page = await browser.newPage()
-        await page.setDefaultTimeout(10000)
+        await page.setDefaultTimeout(config.waitingTimeout)
         await page.setViewport({
-            width: 800,
-            height: 600
+            width: config.viewportWidth,
+            height: config.viewportHeight
         })
     })
 
@@ -25,9 +34,8 @@ describe('My first puppeteer test', () => {
     })
 
     it('My first test step', async() =>{
-        await page.goto('https://dev.to/')
-        await page.waitForSelector("#nav-search")
-
+        loadUrl(page, config.baseUrl)
+        await shouldExist(page, "#nav-search")
         const url = await page.url()
         const title = await page.title()
 
@@ -37,30 +45,29 @@ describe('My first puppeteer test', () => {
 
     it('browser reload', async () => {
         await page.reload()
-        await page.waitForSelector("#page-content")
+        await shouldExist(page, "#page-content")
+        await waitForText(page, 'body', 'WRITE A POST')
 
         const url = await page.url()
         const title = await page.title()
 
-        //await page.waitFor(3000) 
-
+        //await page.waitFor(3000) bad practice
+        
         expect(url).to.contain("dev")
         expect(title).to.contains("Community")
     })
 
     it('click method', async () => {
-        await page.goto('https://dev.to/')
-        await page.waitForSelector('#write-link')
-        await page.click('#write-link')
-        await page.waitForSelector('.registration-rainbow')
+        await loadUrl(page, config.baseUrl)
+        await click(page, "#write-link")
+        await shouldExist(page, '.registration-rainbow')
     })
 
     it('submit searchbox', async () => {
-        await page.goto('https://dev.to/')
-        await page.waitForSelector('#nav-search')
-        await page.type('#nav-search', 'Javascript')
-        await page.keyboard.press('Enter')
-        await page.waitForSelector('#articles-list')
+        await loadUrl(page, config.baseUrl)
+        await typeText(page, 'Javascript', '#nav-search')
+        await pressKey(page, "Enter")
+        await shouldExist(page, '#articles-list')
     })
 
 })
