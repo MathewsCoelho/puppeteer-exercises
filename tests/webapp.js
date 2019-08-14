@@ -13,6 +13,12 @@ const getCount = require('../lib/helpers').getCount
 
 const utils = require("../lib/utils")
 
+const homePage = require('../page-objects/home-page')
+const loginPage = require('../page-objects/login-page')
+const searchResultsPage = require('../page-objects/search-results-page')
+const feedbackPage = require('../page-objects/feedback-page')
+const feedbackResultsPage = require('../page-objects/feedback-results-page')
+
 let browser
 let page
 
@@ -40,47 +46,48 @@ describe('My first puppeteer test', () => {
     describe('Login Test', () => {
         it('should navigate to menu page', async () => {
             await loadUrl(page, config.baseUrl)
-            await shouldExist(page, "#online_banking_features")
+            //await shouldExist(page, "#online_banking_features")
+            await shouldExist(page, homePage.BANKING_FEATURES )
         })
 
         it('should click on signin button', async () => {
-            await click(page, '#signin_button')
-            await shouldExist(page, '#login_form')
+            await click(page, homePage.SIGN_IN_BUTTON)
+            await shouldExist(page, loginPage.LOGIN_FORM)
         })
 
         it('should submit login form', async () => {
-            await typeText(page, utils.generateID(), "#user_login")
-            await typeText(page, utils.generateID(), "#user_password")
-            await click(page, ".btn-primary")
+            await typeText(page, utils.generateID(), loginPage.USER_NAME)
+            await typeText(page, utils.generateID(), loginPage.USER_PASSWORD)
+            await click(page, loginPage.SUBMIT_BUTTON)
         })
 
         it('should get error message', async () => {
             await waitForText(page, "body", "Login and/or password are wrong")
-            await shouldExist(page, "#login_form")
+            await shouldExist(page, loginPage.LOGIN_FORM)
         })        
     })
 
     describe('Search Test', () => {
-        it('should navigate to homepage', async () => {
+        it('should navigate to homePage', async () => {
             await loadUrl(page, config.baseUrl)
-            await shouldExist(page, '#online_banking_features')
+            await shouldExist(page, homePage.BANKING_FEATURES )
         })
 
         it('should submit search phrase', async () => {
-            await typeText(page, 'Hello World', "#searchTerm")
+            await typeText(page, 'Hello World', homePage.SEARCH_BAR)
             await pressKey(page, 'Enter')
         })
 
         it('should display search results', async () => {
-            await waitForText(page, 'h2', "Search Results")
-            await waitForText(page, 'body', "No results were found for the query")
+            await waitForText(page, searchResultsPage.SEARCH_RESULTS_TITLE, "Search Results")
+            await waitForText(page, searchResultsPage.SEAERCH_RESULTS_CONTENT, "No results were found for the query")
         })
     })
 
     describe('Navbar Links Test', () => {
-        it('should navigate to homepage', async () => {
+        it('should navigate to homePage', async () => {
             await loadUrl(page, config.baseUrl)
-            await shouldExist(page, '#online_banking_features')
+            await shouldExist(page, homePage.BANKING_FEATURES )
         })
         it('should have corret number of links', async () => {
             const numberOfLinks = await getCount(page, '#pages-nav > li') 
@@ -91,32 +98,32 @@ describe('My first puppeteer test', () => {
     describe('Feedback Test', () => {
         it('should navigate to homepage', async () => {
             await loadUrl(page, config.baseUrl)
-            await shouldExist(page, '#online_banking_features')
+            await shouldExist(page, homePage.BANKING_FEATURES )
         })
 
         it('should click on feedback link', async () => {
-            await click(page, '#feedback')
+            await click(page, homePage.LINK_FEEDBACK)
             await shouldExist(page, "form")
         })
 
         it('should submit feedback form', async () => {
-            await typeText(page, 'Kaniel', '#name')
-            await typeText(page, utils.generateEmail(), '#email')
-            await typeText(page, 'Just Subject', '#subject')
-            await typeText(page, 'Just a comment', '#comment')
-            await click(page, 'input[type="submit"]')
+            await typeText(page, 'Kaniel', feedbackPage.FORM_NAME)
+            await typeText(page, utils.generateEmail(), feedbackPage.FORM_EMAIL)
+            await typeText(page, 'Just Subject', feedbackPage.FORM_SUBJECT)
+            await typeText(page, 'Just a comment', feedbackPage.FORM_COMMENT)
+            await click(page, 'input[type="submit"]', feedbackPage.FORM_SUBMIT_BUTTON)
         })
 
         it('should display success message', async () => {
-            await shouldExist(page, "#feedback-title")
-            await waitForText(page, 'body', 'Thank you for your comments')
+            await shouldExist(page, feedbackResultsPage.FEEDBACK_RESULTS_TITLE)
+            await waitForText(page, feedbackResultsPage.FEEDBACK_RESULTS_CONTENT, 'Thank you for your comments')
         })
     })
 
     describe('Forgotted password', () => {
         it('should navigate to homepage', async () => {
             await loadUrl(page, config.baseUrl)
-            await shouldExist(page, '#online_banking_features')
+            await shouldExist(page, homePage.BANKING_FEATURES )
         })
 
         it('should load forgotten password form', async () => {
@@ -127,6 +134,10 @@ describe('My first puppeteer test', () => {
         it('should submit email', async () => {
             await typeText(page, utils.generateEmail(), "#user_email")
             await click(page, ".btn-primary")
+        })
+
+        it('should display success message', async () => {
+            await waitForText(page, 'body', 'Your password will be sent to the following email')
         })
     })
 })
